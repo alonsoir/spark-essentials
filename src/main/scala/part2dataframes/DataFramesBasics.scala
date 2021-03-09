@@ -97,6 +97,13 @@ object DataFramesBasics extends App {
   val smartphonesDF = smartphones.toDF("Make", "Model", "Platform", "CameraMegapixels")
   smartphonesDF.show()
 
+  val smartphones1 = Seq(
+                      ("Xiaomi","xiaomi redmi note 8","Android",10)
+                      ,("Xiaomi","xiaomi redmi note 9","Android",12)
+                       ,("Xiaomi","xiaomi redmi note 10","Android",12))
+  val smartphones1DF = smartphones1.toDF("Make","Model","Platform","CameraMegapixels")
+  smartphones1DF.show(false)
+  println(s"There are ${smartphones1DF.count()} smartphones...")
   // 2
   val moviesDF = spark.read
     .format("json")

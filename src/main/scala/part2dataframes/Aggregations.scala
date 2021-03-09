@@ -23,7 +23,7 @@ object Aggregations extends App {
   moviesDF.select(count("*")) // count all the rows, and will INCLUDE nulls
 
   // counting distinct
-  moviesDF.select(countDistinct(col("Major_Genre"))).show()
+  moviesDF.select(countDistinct(col("Major_Genre"))).show(false)
 
   // approximate count
   moviesDF.select(approx_count_distinct(col("Major_Genre")))
@@ -79,18 +79,18 @@ object Aggregations extends App {
   moviesDF
     .select((col("US_Gross") + col("Worldwide_Gross") + col("US_DVD_Sales")).as("Total_Gross"))
     .select(sum("Total_Gross"))
-    .show()
+    .show(false)
 
   // 2
   moviesDF
     .select(countDistinct(col("Director")))
-    .show()
+    .show(false)
 
   // 3
   moviesDF.select(
     mean("US_Gross"),
     stddev("US_Gross")
-  ).show()
+  ).show(false)
 
   // 4
   moviesDF
