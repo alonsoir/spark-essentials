@@ -109,6 +109,22 @@ object DataFramesBasics extends App {
     .format("json")
     .option("inferSchema", "true")
     .load("src/main/resources/data/movies.json")
+
   moviesDF.printSchema()
   println(s"The Movies DF has ${moviesDF.count()} rows")
+
+  val stocksDF = spark.read.option("header","true").option("inferSchema","true").csv("src/main/resources/data/stocks.csv")
+  stocksDF.printSchema()
+  stocksDF.show(10,false)
+  println(s"There are ${stocksDF.count()} stocks...")
+
+  val populationDF = spark.read.json("src/main/resources/data/population.json")
+  populationDF.printSchema()
+  populationDF.show(10,false)
+  println(s"There are ${populationDF.count()} persons...")
+
+  val bandsDF = spark.read.json("src/main/resources/data/bands.json")
+  bandsDF.printSchema()
+  bandsDF.show(10,false)
+  println(s"There are ${bandsDF.count()} bands...")
 }

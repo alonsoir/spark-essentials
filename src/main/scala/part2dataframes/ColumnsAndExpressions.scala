@@ -14,6 +14,7 @@ object ColumnsAndExpressions extends App {
     .option("inferSchema", "true")
     .json("src/main/resources/data/cars.json")
 
+  carsDF.show(5,false)
   // Columns
   val firstColumn = carsDF.col("Name")
 
@@ -66,6 +67,13 @@ object ColumnsAndExpressions extends App {
   // filtering
   val europeanCarsDF = carsDF.filter(col("Origin") =!= "USA")
   val europeanCarsDF2 = carsDF.where(col("Origin") =!= "USA")
+
+  europeanCarsDF.show(5,false)
+  europeanCarsDF2.show(2,false)
+
+  europeanCarsDF.write.mode("overwrite").parquet("src/main/resources/data/europeanCarsDF.parquet")
+
+  spark.read.parquet("src/main/resources/data/europeanCarsDF.parquet").show(2,false)
   // filtering with expression strings
   val americanCarsDF = carsDF.filter("Origin = 'USA'")
   // chain filters
@@ -135,5 +143,8 @@ object ColumnsAndExpressions extends App {
   val comediesDF3 = moviesDF.select("Title", "IMDB_Rating")
     .where("Major_Genre = 'Comedy' and IMDB_Rating > 6")
 
-  comediesDF3.show
+  comediesDF3.show(5,false)
+  //comediesDF3.write.format("org.apache.spark.avro").save("src/main/resources/data/comedies.avro")
+
+  println("Done")
 }
