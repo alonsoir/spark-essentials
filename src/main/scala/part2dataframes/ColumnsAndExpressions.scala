@@ -75,7 +75,9 @@ object ColumnsAndExpressions extends App {
 
   spark.read.parquet("src/main/resources/data/europeanCarsDF.parquet").show(2,false)
   // filtering with expression strings
-  val americanCarsDF = carsDF.filter("Origin = 'USA'")
+  val americanCarsDF = carsDF.filter("Origin = 'USA'").show(5,false)
+
+  carsDF.where("Origin = 'USA'").show(5,false)
   // chain filters
   val americanPowerfulCarsDF = carsDF.filter(col("Origin") === "USA").filter(col("Horsepower") > 150)
   val americanPowerfulCarsDF2 = carsDF.filter(col("Origin") === "USA" and col("Horsepower") > 150)
@@ -99,7 +101,8 @@ object ColumnsAndExpressions extends App {
     */
 
   val moviesDF = spark.read.option("inferSchema", "true").json("src/main/resources/data/movies.json")
-  moviesDF.show()
+  moviesDF.printSchema()
+  moviesDF.show(5,false)
 
   // 1
   val moviesReleaseDF = moviesDF.select("Title", "Release_Date")
@@ -109,42 +112,47 @@ object ColumnsAndExpressions extends App {
     $"Major_Genre",
     expr("IMDB_Rating")
   )
+
+  val moviesReleaseDF4 = moviesDF.select($"Title",$"Release_Date",$"Major_Genre").show(5,false)
   val moviesReleaseDF3 = moviesDF.selectExpr(
     "Title", "Release_Date"
   )
-
+  moviesDF.printSchema
   // 2
-  val moviesProfitDF = moviesDF.select(
+  val moviesProfitDF = moviesDF.filter("US_DVD_Sales is not null").select(
     col("Title"),
     col("US_Gross"),
     col("Worldwide_Gross"),
     col("US_DVD_Sales"),
-    (col("US_Gross") + col("Worldwide_Gross")).as("Total_Gross")
+    (col("US_Gross") + col("Worldwide_Gross") + col("US_DVD_Sales")).as("Total_Gross")
   )
 
-  val moviesProfitDF2 = moviesDF.selectExpr(
+  spark.time(moviesProfitDF.show(5,false))
+  val moviesProfitDF2 = spark.time(moviesDF.filter("US_DVD_Sales is not null").selectExpr(
     "Title",
     "US_Gross",
     "Worldwide_Gross",
-    "US_Gross + Worldwide_Gross as Total_Gross"
-  )
+    "US_DVD_Sales",
+    "US_Gross + Worldwide_Gross + US_DVD_Sales as Total_Gross"
+  ).show(5,false))
 
-  val moviesProfitDF3 = moviesDF.select("Title", "US_Gross", "Worldwide_Gross")
-    .withColumn("Total_Gross", col("US_Gross") + col("Worldwide_Gross"))
+  val moviesProfitDF3 = spark.time(moviesDF.select("Title", "US_Gross", "Worldwide_Gross")
+    .withColumn("Total_Gross", col("US_Gross") + col("Worldwide_Gross")).show(5,false))
 
   // 3
   val atLeastMediocreComediesDF = moviesDF.select("Title", "IMDB_Rating")
-    .where(col("Major_Genre") === "Comedy" and col("IMDB_Rating") > 6)
+    .where(col("Major_Genre") === "Comedy" and col("IMDB_Rating") > 6).show(5,false)
 
   val comediesDF2 = moviesDF.select("Title", "IMDB_Rating")
     .where(col("Major_Genre") === "Comedy")
-    .where(col("IMDB_Rating") > 6)
+    .where(col("IMDB_Rating") > 6).show(5,false)
 
   val comediesDF3 = moviesDF.select("Title", "IMDB_Rating")
     .where("Major_Genre = 'Comedy' and IMDB_Rating > 6")
 
-  comediesDF3.show(5,false)
+  // comediesDF3.show(5,false)
   //comediesDF3.write.format("org.apache.spark.avro").save("src/main/resources/data/comedies.avro")
 
+  spark.time(comediesDF3.show(5,false))
   println("Done")
 }
