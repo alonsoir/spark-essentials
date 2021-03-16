@@ -154,5 +154,7 @@ object ColumnsAndExpressions extends App {
   //comediesDF3.write.format("org.apache.spark.avro").save("src/main/resources/data/comedies.avro")
 
   spark.time(comediesDF3.show(5,false))
+
+  comediesDF3.write.parquet("src/main/resources/data/comediesDF3.parquet")
   println("Done")
 }

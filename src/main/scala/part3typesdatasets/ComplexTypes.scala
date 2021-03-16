@@ -15,17 +15,28 @@ object ComplexTypes extends App {
     .option("inferSchema", "true")
     .json("src/main/resources/data/movies.json")
 
+  val totalCount = moviesDF.count()
+  println(s"There are $totalCount rows of type moviesDF.")
   // Dates
-
+  // Hay que setear esto para que no se rompa cuando usas SPARK-3.0.X
+  // La otra opcion es spark.sql.legacy.timeParserPolicy=CORRECTED
+  // Si la usas, no se romperá la ejecución, pero si encuentra una fecha que no cumpla con el formato, mostrará un NULL
+  // Por ejemplo, si encuentra una fecha 7-Aug-98, al no cumplir estrictamente el patrón dd-MMM-yy, mostrará un NULL.
+  spark.sql("set spark.sql.legacy.timeParserPolicy=LEGACY")
   val moviesWithReleaseDates = moviesDF
     .select(col("Title"), to_date(col("Release_Date"), "dd-MMM-yy").as("Actual_Release")) // conversion
+  val totalmoviesWithReleaseDatesCount = moviesWithReleaseDates.count()
+  println(s"There are $totalmoviesWithReleaseDatesCount rows of type moviesWithReleaseDates.")
+  //moviesWithReleaseDates.show(5,false)
 
   moviesWithReleaseDates
     .withColumn("Today", current_date()) // today
     .withColumn("Right_Now", current_timestamp()) // this second
-    .withColumn("Movie_Age", datediff(col("Today"), col("Actual_Release")) / 365) // date_add, date_sub
+    .withColumn("Movie_Age_In_Years", datediff(col("Today"), col("Actual_Release")) / 365).show(5,false) // date_add, date_sub
 
-  moviesWithReleaseDates.select("*").where(col("Actual_Release").isNull)
+  moviesWithReleaseDates.select("*").where(col("Actual_Release").isNull).count()
+
+  moviesWithReleaseDates.show(5,false)
 
   /**
     * Exercise
@@ -66,5 +77,6 @@ object ComplexTypes extends App {
     size(col("Title_Words")), // array size
     array_contains(col("Title_Words"), "Love") // look for value in array
   )
-
+  moviesWithWords.show()
+  println("Done!")
 }

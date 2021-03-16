@@ -123,8 +123,9 @@ object DataSources extends App {
   // Parquet
   moviesDF.write.save("src/main/resources/data/movies.parquet")
 
+  val moviesDFPArquet = spark.read.parquet("src/main/resources/data/movies.parquet")
   // save to DF
-  moviesDF.write
+  moviesDFPArquet.write
     .format("jdbc")
     .option("driver", driver)
     .option("url", url)

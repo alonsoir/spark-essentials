@@ -1,7 +1,7 @@
 package part2dataframes
 
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions.{expr, max, col}
+import org.apache.spark.sql.functions.{col, expr, max}
 
 object Joins extends App {
 
@@ -25,39 +25,38 @@ object Joins extends App {
   // inner joins
   val joinCondition = guitaristsDF.col("band") === bandsDF.col("id")
   val guitaristsBandsDF = guitaristsDF.join(bandsDF, joinCondition, "inner")
-
+  guitaristsBandsDF.show()
   // outer joins
   // left outer = everything in the inner join + all the rows in the LEFT table, with nulls in where the data is missing
   guitaristsDF.join(bandsDF, joinCondition, "left_outer")
-
+  guitaristsDF.show()
   // right outer = everything in the inner join + all the rows in the RIGHT table, with nulls in where the data is missing
   guitaristsDF.join(bandsDF, joinCondition, "right_outer")
-
+  guitaristsDF.show()
   // outer join = everything in the inner join + all the rows in BOTH tables, with nulls in where the data is missing
   guitaristsDF.join(bandsDF, joinCondition, "outer")
-
+  guitaristsDF.show()
   // semi-joins = everything in the left DF for which there is a row in the right DF satisfying the condition
   guitaristsDF.join(bandsDF, joinCondition, "left_semi")
-
+  guitaristsDF.show()
   // anti-joins = everything in the left DF for which there is NO row in the right DF satisfying the condition
   guitaristsDF.join(bandsDF, joinCondition, "left_anti")
-
+  guitaristsDF.show()
 
   // things to bear in mind
   // guitaristsBandsDF.select("id", "band").show // this crashes
 
   // option 1 - rename the column on which we are joining
   guitaristsDF.join(bandsDF.withColumnRenamed("id", "band"), "band")
-
+  guitaristsDF.show()
   // option 2 - drop the dupe column
-  guitaristsBandsDF.drop(bandsDF.col("id"))
-
+  guitaristsBandsDF.drop(bandsDF.col("id")).show()
   // option 3 - rename the offending column and keep the data
   val bandsModDF = bandsDF.withColumnRenamed("id", "bandId")
-  guitaristsDF.join(bandsModDF, guitaristsDF.col("band") === bandsModDF.col("bandId"))
+  guitaristsDF.join(bandsModDF, guitaristsDF.col("band") === bandsModDF.col("bandId")).show()
 
   // using complex types
-  guitaristsDF.join(guitarsDF.withColumnRenamed("id", "guitarId"), expr("array_contains(guitars, guitarId)"))
+  guitaristsDF.join(guitarsDF.withColumnRenamed("id", "guitarId"), expr("array_contains(guitars, guitarId)")).show()
 
   /**
     * Exercises
@@ -88,8 +87,9 @@ object Joins extends App {
 
   // 1
   val maxSalariesPerEmpNoDF = salariesDF.groupBy("emp_no").agg(max("salary").as("maxSalary"))
+  maxSalariesPerEmpNoDF.show()
   val employeesSalariesDF = employeesDF.join(maxSalariesPerEmpNoDF, "emp_no")
-
+  employeesSalariesDF.show()
   // 2
   val empNeverManagersDF = employeesDF.join(
     deptManagersDF,
@@ -102,6 +102,6 @@ object Joins extends App {
   val bestPaidEmployeesDF = employeesSalariesDF.orderBy(col("maxSalary").desc).limit(10)
   val bestPaidJobsDF = bestPaidEmployeesDF.join(mostRecentJobTitlesDF, "emp_no")
 
-  bestPaidJobsDF.show()
+  bestPaidJobsDF.show(10,false)
 }
 

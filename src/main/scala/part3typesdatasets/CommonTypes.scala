@@ -2,7 +2,6 @@ package part3typesdatasets
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types.FloatType
 
 object CommonTypes extends App {
 
@@ -16,8 +15,7 @@ object CommonTypes extends App {
     .json("src/main/resources/data/movies.json")
 
   // adding a plain value to a DF
-  moviesDF.select(col("Title"), lit(47).as("plain_value"))
-
+  moviesDF.select(col("Title"), lit(47).as("plain_value")).show(5,false)
   // Booleans
   val dramaFilter = col("Major_Genre") equalTo "Drama"
   val goodRatingFilter = col("IMDB_Rating") > 7.0
@@ -82,8 +80,21 @@ object CommonTypes extends App {
     regexp_extract(col("Name"), complexRegex, 0).as("regex_extract")
   ).where(col("regex_extract") =!= "")
     .drop("regex_extract")
+    .show(5,false)
 
-  // version 2 - contains
+  // voy a poner el nombre de la columna mal a conciencia para que lo busque a través de ese índice...
+  // Conclusión, NO PUEDES!
+  // el nombre de la columna DEBE ser el correcto, así como el lugar que dicha columna ocupa.
+  // Entonces, para qué necesitas indicar tanto el nombre como el lugar que ocupa?
+  // por si tienes más de una columna que se llama igual en distintas posiciones?
+  carsDF.select(
+    col("Name"),
+    regexp_extract(col("Name"), complexRegex, 0).as("regex_extract")
+  ).where(col("regex_extract") =!= "")
+    .drop("regex_extract")
+    .show(5,false)
+
+  // version 2 - contains Esta version es muy compleja... Mejor la de arriba.
   val carNameFilters = getCarNames.map(_.toLowerCase()).map(name => col("Name").contains(name))
   val bigFilter = carNameFilters.fold(lit(false))((combinedFilter, newCarNameFilter) => combinedFilter or newCarNameFilter)
   carsDF.filter(bigFilter).show
