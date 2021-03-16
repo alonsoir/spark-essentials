@@ -1,9 +1,7 @@
 package part3typesdatasets
 
-import java.sql.Date
-
-import org.apache.spark.sql.{DataFrame, Dataset, Encoders, SparkSession}
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.{DataFrame, Dataset, Encoders, SparkSession}
 
 
 object Datasets extends App {
@@ -24,19 +22,18 @@ object Datasets extends App {
   // convert a DF to a Dataset
   implicit val intEncoder = Encoders.scalaInt
   val numbersDS: Dataset[Int] = numbersDF.as[Int]
-
   // dataset of a complex type
   // 1 - define your case class
   case class Car(
-                Name: String,
-                Miles_per_Gallon: Option[Double],
-                Cylinders: Long,
-                Displacement: Double,
-                Horsepower: Option[Long],
-                Weight_in_lbs: Long,
-                Acceleration: Double,
-                Year: Date,
-                Origin: String
+                  Name: String,
+                  Miles_per_Gallon: Option[Double],
+                  Cylinders: Long,
+                  Displacement: Double,
+                  Horsepower: Option[Long],
+                  Weight_in_lbs: Long,
+                  Acceleration: Double,
+                  Year: String,
+                  Origin: String
                 )
 
   // 2 - read the DF from the file
@@ -47,10 +44,14 @@ object Datasets extends App {
   val carsDF = readDF("cars.json")
 
   // 3 - define an encoder (importing the implicits)
+  // Aquí están tooooodos los encoders, por lo que de esta manera podemos hacer carsDF.as[Car]
+  // Es como tener Encoders.product[Car]
   import spark.implicits._
+  implicit val dateEncoder = Encoders.DATE
   // 4 - convert the DF to DS
   val carsDS = carsDF.as[Car]
 
+  //carsDS.show()
   // DS collection functions
   numbersDS.filter(_ < 100)
 
