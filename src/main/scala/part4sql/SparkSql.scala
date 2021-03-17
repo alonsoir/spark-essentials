@@ -9,8 +9,9 @@ object SparkSql extends App {
     .appName("Spark SQL Practice")
     .config("spark.master", "local")
     .config("spark.sql.warehouse.dir", "src/main/resources/warehouse")
+    //.enableHiveSupport()
     // only for Spark 2.4 users:
-    // .config("spark.sql.legacy.allowCreatingManagedTableUsingNonemptyLocation", "true")
+    //.config("spark.sql.legacy.allowCreatingManagedTableUsingNonemptyLocation", "true")
     .getOrCreate()
 
   val carsDF = spark.read
@@ -51,11 +52,13 @@ object SparkSql extends App {
     val tableDF = readTable(tableName)
     tableDF.createOrReplaceTempView(tableName)
 
-    if (shouldWriteToWarehouse) {
+    //if (shouldWriteToWarehouse) {
       tableDF.write
         .mode(SaveMode.Overwrite)
+        // tengo que especificar esto para que funcione la segunda vez que arrancas el script!
+        .option("path", "src/main/resources/spark-local/tmp")
         .saveAsTable(tableName)
-    }
+    //}
   }
 
   transferTables(List(
@@ -86,6 +89,8 @@ object SparkSql extends App {
 
   moviesDF.write
     .mode(SaveMode.Overwrite)
+    // tengo que especificar esto para que funcione la segunda vez que arrancas el script!
+    .option("path", "src/main/resources/spark-local/tmp")
     .saveAsTable("movies")
 
   // 2
@@ -95,7 +100,7 @@ object SparkSql extends App {
       |from employees
       |where hire_date > '1999-01-01' and hire_date < '2000-01-01'
     """.stripMargin
-  )
+  ).show()
 
   // 3
   spark.sql(
@@ -107,7 +112,7 @@ object SparkSql extends App {
       | and e.emp_no = s.emp_no
       |group by de.dept_no
     """.stripMargin
-  )
+  ).show()
 
   // 4
   spark.sql(

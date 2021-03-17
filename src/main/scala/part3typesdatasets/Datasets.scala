@@ -3,6 +3,8 @@ package part3typesdatasets
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{DataFrame, Dataset, Encoders, SparkSession}
 
+import java.sql.Date
+
 
 object Datasets extends App {
 
@@ -32,7 +34,7 @@ object Datasets extends App {
                   Horsepower: Option[Long],
                   Weight_in_lbs: Long,
                   Acceleration: Double,
-                  Year: String,
+                  Year: Date,
                   Origin: String
                 )
 
@@ -51,7 +53,6 @@ object Datasets extends App {
   // 4 - convert the DF to DS
   val carsDS = carsDF.as[Car]
 
-  //carsDS.show()
   // DS collection functions
   numbersDS.filter(_ < 100)
 
