@@ -52,13 +52,13 @@ object SparkSql extends App {
     val tableDF = readTable(tableName)
     tableDF.createOrReplaceTempView(tableName)
 
-    //if (shouldWriteToWarehouse) {
+    if (shouldWriteToWarehouse) {
       tableDF.write
         .mode(SaveMode.Overwrite)
         // tengo que especificar esto para que funcione la segunda vez que arrancas el script!
         .option("path", "src/main/resources/spark-local/tmp")
         .saveAsTable(tableName)
-    //}
+    }
   }
 
   transferTables(List(

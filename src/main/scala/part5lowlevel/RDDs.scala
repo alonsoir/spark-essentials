@@ -1,7 +1,7 @@
 package part5lowlevel
 
-import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.{SaveMode, SparkSession}
 
 import scala.io.Source
 
@@ -81,6 +81,7 @@ object RDDs extends App {
     .mode(SaveMode.Overwrite)
     .parquet("src/main/resources/data/stocks30")
   /*
+    En la práctica, creará 30 ficheros parquet!
     Repartitioning is EXPENSIVE. Involves Shuffling.
     Best practice: partition EARLY, then process that.
     Size of a partition 10-100MB.
@@ -92,6 +93,10 @@ object RDDs extends App {
     .mode(SaveMode.Overwrite)
     .parquet("src/main/resources/data/stocks15")
 
+  /*
+    En la práctica implica pasar a tener solo 15 particiones, 15 ficheros parquet
+
+   */
   /**
     * Exercises
     *

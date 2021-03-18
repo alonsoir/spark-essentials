@@ -1,6 +1,7 @@
 package part3typesdatasets
 
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.{DateType, DoubleType, LongType, StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Dataset, Encoders, SparkSession}
 
 import java.sql.Date
@@ -38,18 +39,32 @@ object Datasets extends App {
                   Origin: String
                 )
 
+  val carsSchema = StructType(Array(
+    StructField("Name", StringType),
+    StructField("Miles_per_Gallon", DoubleType),
+    StructField("Cylinders", LongType),
+    StructField("Displacement", DoubleType),
+    StructField("Horsepower", LongType),
+    StructField("Weight_in_lbs", LongType),
+    StructField("Acceleration", DoubleType),
+    StructField("Year", DateType),
+    StructField("Origin", StringType)
+  ))
   // 2 - read the DF from the file
   def readDF(filename: String) = spark.read
     .option("inferSchema", "true")
     .json(s"src/main/resources/data/$filename")
 
-  val carsDF = readDF("cars.json")
+  // cars.json have a weird dateFormat...
+  val carsDF = spark.read
+    .option("dateFormat", "yyyy-MM-dd")
+    .schema(carsSchema)
+    .json(s"src/main/resources/data/cars.json")
 
   // 3 - define an encoder (importing the implicits)
   // Aquí están tooooodos los encoders, por lo que de esta manera podemos hacer carsDF.as[Car]
   // Es como tener Encoders.product[Car]
   import spark.implicits._
-  implicit val dateEncoder = Encoders.DATE
   // 4 - convert the DF to DS
   val carsDS = carsDF.as[Car]
 
