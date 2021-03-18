@@ -12,6 +12,8 @@ object Datasets extends App {
   val spark = SparkSession.builder()
     .appName("Datasets")
     .config("spark.master", "local")
+    // ENABLING ADAPTIVE QUERY EXECUTION planner.
+    .config("spark.sql.adaptive.enabled","true")
     .getOrCreate()
 
   val numbersDF: DataFrame = spark.read
